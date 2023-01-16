@@ -2,19 +2,19 @@ package com.example.tictactoe;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements JGameLib.GameEvent {
-    int cellCount = 3;
+    int cellCount = 3, turns = 0;
     JGameLib gameLib = null;
     JGameLib.Card[][] cellCards = new JGameLib.Card[cellCount][cellCount];
     final int cellColor = Color.WHITE;
     final int edgeColor = Color.BLACK;
     final float edgeThick = 0.1f;
     final String markCom = "O", markUser = "X";
-    int turns = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
                 cellCards[y][x] = gameLib.addCardColor(cellColor, x+edgeThick, y+edgeThick, 1, 1);
                 cellCards[y][x].edge(edgeColor, edgeThick);
                 cellCards[y][x].text("", edgeColor, 0.7);
+                cellCards[y][x].set(y*10 + x);
             }
         }
         Restart();
@@ -55,31 +56,33 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
         turnComputer();
     }
 
-    void turnComputer() {
+    Point turnComputer() {
+        Point po = new Point(-1,-1);
         while(true) {
             int y = gameLib.random(cellCount);
             int x = gameLib.random(cellCount);
-            if(cellCards[y][x].text == null || cellCards[y][x].text.isEmpty()) {
+            if(cellCards[y][x].text.isEmpty()) {
                 cellCards[y][x].text(markCom);
                 turns ++;
-                return;
+                po.set(x, y);
+                break;
             }
         }
+        return po;
     }
 
-    boolean findSame3(String mark) {
+    boolean findSame3(int x, int y, String mark) {
+        int countH = 0;
+        int countV = 0;
         for(int i=0; i < cellCount; i++) {
-            int countH = 0;
-            int countV = 0;
-            for (int j = 0; j < cellCount; j++) {
-                if(cellCards[i][j].text == mark)
-                    countH ++;
-                if(cellCards[j][i].text == mark)
-                    countV ++;
-            }
-            if(countH == cellCount || countV == cellCount)
-                return true;
+            if(cellCards[i][x].text == mark)
+                countH ++;
+            if(cellCards[y][i].text == mark)
+                countV ++;
         }
+        if(countH == cellCount || countV == cellCount)
+            return true;
+        if(x != y && x+y != cellCount-1) return false;
         int countN = 0;
         int countZ = 0;
         for(int i=0; i < cellCount; i++) {
@@ -112,11 +115,13 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
             if(card.text != null || card.text.isEmpty()) {
                 card.text(markUser);
                 turns ++;
-                if(turns >=6 && findSame3(markUser)) {
+                int axis = card.getInt();
+                int x = axis % 10, y = axis / 10;
+                if(turns >=6 && findSame3(x, y, markUser)) {
                     gameLib.popupDialog(null, "Congratulation! You won.", "Close");
                 } else {
-                    turnComputer();
-                    if(turns >=5 && findSame3(markCom))
+                    Point po = turnComputer();
+                    if(turns >=5 && findSame3(po.x, po.y, markCom))
                         gameLib.popupDialog(null, "You loose. Try again.", "Close");
                     else if(turns >= 9)
                         gameLib.popupDialog(null, "The game tied. Try again.", "Close");
