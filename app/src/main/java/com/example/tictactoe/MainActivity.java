@@ -72,26 +72,19 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
     }
 
     boolean findSame3(int x, int y, String mark) {
-        int countH = 0;
-        int countV = 0;
+        int countH = 0, countV = 0, countN = 0, countZ = 0;
         for(int i=0; i < cellCount; i++) {
             if(cellCards[i][x].text == mark)
                 countH ++;
             if(cellCards[y][i].text == mark)
                 countV ++;
-        }
-        if(countH == cellCount || countV == cellCount)
-            return true;
-        if(x != y && x+y != cellCount-1) return false;
-        int countN = 0;
-        int countZ = 0;
-        for(int i=0; i < cellCount; i++) {
             if(cellCards[i][i].text == mark)
                 countN ++;
             if(cellCards[i][cellCount-i-1].text == mark)
                 countZ ++;
         }
-        if(countN == cellCount || countZ == cellCount)
+        if(countH == cellCount || countV == cellCount
+            || countN == cellCount || countZ== cellCount)
             return true;
         return false;
     }
@@ -117,11 +110,11 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
                 turns ++;
                 int axis = card.getInt();
                 int x = axis % 10, y = axis / 10;
-                if(turns >=6 && findSame3(x, y, markUser)) {
+                if(turns >= 6 && findSame3(x, y, markUser)) {
                     gameLib.popupDialog(null, "Congratulation! You won.", "Close");
                 } else {
                     Point po = turnComputer();
-                    if(turns >=5 && findSame3(po.x, po.y, markCom))
+                    if(turns >= 5 && findSame3(po.x, po.y, markCom))
                         gameLib.popupDialog(null, "You loose. Try again.", "Close");
                     else if(turns >= 9)
                         gameLib.popupDialog(null, "The game tied. Try again.", "Close");
