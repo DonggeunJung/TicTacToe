@@ -103,14 +103,14 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
     public void onGameWorkEnded(JGameLib.Card card, JGameLib.WorkType workType) {}
 
     @Override
-    public void onGameTouchEvent(JGameLib.Card card, int action, float blockX, float blockY) {
+    public void onGameTouchEvent(JGameLib.Card card, int action, float x, float y) {
         if(action == MotionEvent.ACTION_UP) {
             if(card.text != null || card.text.isEmpty()) {
                 card.text(markUser);
                 turns ++;
                 int axis = card.getInt();
-                int x = axis % 10, y = axis / 10;
-                if(turns >= 6 && findSame3(x, y, markUser)) {
+                int col = axis % 10, row = axis / 10;
+                if(turns >= 6 && findSame3(col, row, markUser)) {
                     gameLib.popupDialog(null, "Congratulation! You won.", "Close");
                 } else {
                     Point po = turnComputer();
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
     public void onGameCollision(JGameLib.Card card1, JGameLib.Card card2) {}
 
     @Override
-    public void onGameTimer(int what) {}
+    public void onGameTimer() {}
 
     // Game Event end ====================================
 
