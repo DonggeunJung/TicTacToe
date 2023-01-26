@@ -7,10 +7,10 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class MainActivity extends AppCompatActivity implements JGameLib.GameEvent {
+public class MainActivity extends AppCompatActivity implements Mosaic.GameEvent {
     int cellCount = 3, turns = 0;
-    JGameLib gameLib = null;
-    JGameLib.Card[][] cellCards = new JGameLib.Card[cellCount][cellCount];
+    Mosaic mosaic = null;
+    Mosaic.Card[][] cellCards = new Mosaic.Card[cellCount][cellCount];
     final int cellColor = Color.WHITE;
     final int edgeColor = Color.BLACK;
     final float edgeThick = 0.1f;
@@ -20,24 +20,24 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gameLib = findViewById(R.id.gameLib);
+        mosaic = findViewById(R.id.mosaic);
         initGame();
     }
 
     @Override
     protected void onDestroy() {
-        if(gameLib != null)
-            gameLib.clearMemory();
+        if(mosaic != null)
+            mosaic.clearMemory();
         super.onDestroy();
     }
 
     void initGame() {
-        gameLib.setScreenGrid(cellCount+edgeThick*2, cellCount+edgeThick*2);
-        gameLib.listener(this);
-        gameLib.addCardColor(edgeColor);
+        mosaic.setScreenGrid(cellCount+edgeThick*2, cellCount+edgeThick*2);
+        mosaic.listener(this);
+        mosaic.addCardColor(edgeColor);
         for(int y=0; y < cellCount; y++) {
             for(int x=0; x < cellCount; x++) {
-                cellCards[y][x] = gameLib.addCardColor(cellColor, x+edgeThick, y+edgeThick, 1, 1);
+                cellCards[y][x] = mosaic.addCardColor(cellColor, x+edgeThick, y+edgeThick, 1, 1);
                 cellCards[y][x].edge(edgeColor, edgeThick);
                 cellCards[y][x].text("", edgeColor, 0.7);
                 cellCards[y][x].set(y*10 + x);
@@ -59,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
     Point turnComputer() {
         Point po = new Point(-1,-1);
         while(true) {
-            int y = gameLib.random(cellCount);
-            int x = gameLib.random(cellCount);
+            int y = mosaic.random(cellCount);
+            int x = mosaic.random(cellCount);
             if(cellCards[y][x].text.isEmpty()) {
                 cellCards[y][x].text(markCom);
                 turns ++;
@@ -100,10 +100,10 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
     // Game Event start ====================================
 
     @Override
-    public void onGameWorkEnded(JGameLib.Card card, JGameLib.WorkType workType) {}
+    public void onGameWorkEnded(Mosaic.Card card, Mosaic.WorkType workType) {}
 
     @Override
-    public void onGameTouchEvent(JGameLib.Card card, int action, float x, float y) {
+    public void onGameTouchEvent(Mosaic.Card card, int action, float x, float y) {
         if(action == MotionEvent.ACTION_UP) {
             if(card.text != null || card.text.isEmpty()) {
                 card.text(markUser);
@@ -111,13 +111,13 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
                 int axis = card.getInt();
                 int col = axis % 10, row = axis / 10;
                 if(turns >= 6 && findSame3(col, row, markUser)) {
-                    gameLib.popupDialog(null, "Congratulation! You won.", "Close");
+                    mosaic.popupDialog(null, "Congratulation! You won.", "Close");
                 } else {
                     Point po = turnComputer();
                     if(turns >= 5 && findSame3(po.x, po.y, markCom))
-                        gameLib.popupDialog(null, "You loose. Try again.", "Close");
+                        mosaic.popupDialog(null, "You loose. Try again.", "Close");
                     else if(turns >= 9)
-                        gameLib.popupDialog(null, "The game tied. Try again.", "Close");
+                        mosaic.popupDialog(null, "The game tied. Try again.", "Close");
                 }
             }
         }
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements JGameLib.GameEven
     public void onGameSensor(int sensorType, float x, float y, float z) {}
 
     @Override
-    public void onGameCollision(JGameLib.Card card1, JGameLib.Card card2) {}
+    public void onGameCollision(Mosaic.Card card1, Mosaic.Card card2) {}
 
     @Override
     public void onGameTimer() {}
